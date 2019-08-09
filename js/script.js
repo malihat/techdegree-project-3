@@ -1,106 +1,101 @@
+// When page loads, the 'name' input field is focused.
 $(document).ready(function() {
     $("#name").focus();
 });
 
-// const $inputArea = $("<input>", {id: "other-title", "name":"job_role_other", "placeholder":"Your Job Role"});
+// ----------Job Role-----------------
+// Creates text field
 const inputArea = document.createElement("input");
-$(inputArea).attr({"id":"title", "placeholder": "Your Job Role", "name": "job_role_other"});
+$(inputArea).attr({"id":"other-title", "placeholder": "Your Job Role", "name": "job_role_other"});
 
-
+// If 'Other' option is selected, the text field appears.
 // Code taken from: https://stackoverflow.com/questions/4874124/get-current-value-selected-in-dropdown-using-jquery
 $('#title').on('change', function(e) {
     if (this.options[e.target.selectedIndex].text == 'Other') {
-        // $('fieldset')[0].append('<input type="text" id="other-title" name="job_role_other" placeholder="Your Job Role">');
         $('fieldset')[0].append(inputArea);
-        // console.log('Hello');
-    } else {
-        $("#title").css("backgroudColor", "red");   //Needs work
+    } 
+    //  If 'Other' option is not selected, the text field is removed.
+    if ( !(this.options[e.target.selectedIndex].text == 'Other') ) {
+        $('#other-title').remove();
     }
 });
 
-// T-Shirt theme
+// ----------”T-Shirt Info” section-----------------
+    
+// Hides color menu if 'Select Theme' is chosen in design menu and creates "Please select a T-shirt theme"
 if ($('#design option')[0].text == "Select Theme") {
-    // const $option = $("<option> Please select a T-shirt theme </option>")
     const option = document.createElement("option");
     option.textContent = "Please select a T-shirt theme";
     $('#color').prepend(option);
     $('#color')[0].selectedIndex = 0;
-}  //($('#design option')[1] ==) 
 
+    $('#color option').each(function (i, elem) {
+        $(elem).css('display', 'none');
+    });
+}
+
+// Changes the color menu when any option is selected from the design menu
 $('#design').on('change', function (e) {
-    // if ($('#design option').text == '')
-    // for (let i=0; i<$('#design option').length; i++) {
-        const count = [];
-        if (this.options[e.target.selectedIndex].value.includes('js puns')) {
-            // console.log(this.options[e.target.selectedIndex].value);
-            // for (let i=1; i<$('#color option').length; i++)  {
-            $("#color option").each(function(i) {
-                if ($(this).text().includes('JS Puns shirt')) {
-                                  
-                    $(this).css('display', 'block');
-
-                    count.push($('#color option').eq(i).value);
-                    // $('#color:').val('');
-                    console.log($('#color option').eq(i).value)
-                    // console.log(count[0]);  
-                    // $("#color option[value='United State']").attr("disabled", false);
-                    // $('select option:first-child').attr("selected", "selected");
-                    // count.push($('#color').eq(i));
-                    // count.push($('#color').options[i])
-                    // $('#color').val('');
-                    // console.log(count);
-                    
-                } else {
-                    // $(this[hidden=true]).hide();
-                    $(this).css('display', 'none');
-                } 
-            });  
-            // $('#color').val('valkdkdkdk');
-
-        }
-        else if (this.options[e.target.selectedIndex].value.includes('heart js')) {
-            $("#color option").each(function(elem) {
-                if ($(this).text().includes('JS shirt only')) {
-                    $(this).css('display', 'block');
-                    
-                } else {
-                    $(this).css('display', 'none');
-                }
-            }); 
-        }
-        else {
-            $("#color option").css('display', 'block')
-        }
+    // Checks the text of design menu 
+    if (this.options[e.target.selectedIndex].value.includes('js puns')) {
+        const newList = [];
+        // Loops over color menu options to display the matched options
+        $("#color option").each(function() {
+            if ($(this).text().includes('JS Puns shirt')) {
+                newList.push($(this));              
+                $(this).css('display', 'block');
+                // Selects the display option to be the first one from the new options
+                $('#color')[0].selectedIndex = $('#color option[value='+newList[0].val()+']').index();                
+            } else {
+                $(this).css('display', 'none');
+            } 
+        });  
+    }
+    else if (this.options[e.target.selectedIndex].value.includes('heart js')) {
+        const newList = [];
+        $("#color option").each(function() {
+            if ($(this).text().includes('JS shirt only')) {
+                newList.push($(this)); 
+                $(this).css('display', 'block');
+                $('#color')[0].selectedIndex = $('#color option[value='+newList[0].val()+']').index() ;
+                
+            } else {
+                $(this).css('display', 'none');
+            }
+        }); 
+    }   
+    else {
+        $('#color')[0].selectedIndex = 0;
+        $("#color option").css('display', 'block')
+    }
+        
 });
 
+// --------------”Register for Activities” section-------------------
 let total = 0;
 let price = '';
-// const div = document.createElement('div class="price"');
-// div.textContent = "Hello"
 $('.activities').append( "<div id='price'>Total: </div>");
 
-
-// --------------”Register for Activities” section
+// Checks which checkbox is clicked and disables the events that are at the same time.
 $(':checkbox').on('click', function(e) {
-    // const regex = /9(am|pm)/g;
+    // Select the events that start at the same time.
     const checkFirst = (/9(am|pm)/g).test($(this).attr('data-day-and-time'));
     const checkSecond = (/1(pm)/g).test($(this).attr('data-day-and-time'));
     const checkedIndex = $(this).index(':checkbox');
+   
     if(this.checked) {
-        // console.log( $(this).parent().text());
-        // const priceText = (/[$]\d{2,}/).test($(this).parent().text());
+        // Gets the price and adds to the total variable
         price = $(this).parent().text().toString().trim();
         price = parseInt(price.substr(-3)) ;       
         total = total + price;
         $('#price').text(`Total: ${total}`)
-        // console.log("Checked Total: ", total);
-        // console.log("Checked price:", price);
 
+        // Disables the options that start at 9am other than the one checked.
         if (checkFirst !== false || checkSecond !== false) {
             $("label input").each(function(i, elem) {
                 const checkEach = $(this).attr('data-day-and-time');
                 if ( (checkFirst === (/9(am|pm)/g).test(checkEach) || checkSecond === (/1(pm)/g).test(checkEach)) && checkEach !== undefined) {
-                    // console.log($(this).parent().text(), ' ', i );
+                    // Checks if the other options are not the one that is checked.
                     if ( !(i === checkedIndex)){
                         $(this).attr('disabled', 'disabled');
                         $(elem).parent().css('color', 'grey');
@@ -108,64 +103,44 @@ $(':checkbox').on('click', function(e) {
                 }
             });
         }
-        
+    // If the checkbox is unchecked, the disabled options are converted back to original options
     } else {
+        // Price is subtracted to get the new total 
         const newPrice = parseInt($(this).parent().text().toString().trim().substr(-3));
-        // console.log("Unchecked price:", newPrice);
         total -= newPrice;
         $('#price').text(`Total: ${total}`)
-        // console.log('Unchecked Total----', total);
         
         // if ( !(/9(am|pm)/g).test($(this).parent().text()) || !(/1(pm)/g).test($(this).parent().text() == true) ) {
-            if ($(this).index(':checkbox') !== 0 || (/9(am|pm)/g).test($(this).attr('data-day-and-time'))  )   {
-                $("label input").each(function(i, elem) { 
-                    const checkEach = $(this).attr('data-day-and-time');
-                    if ( (checkFirst === (/9(am|pm)/g).test(checkEach)) ) {
-                        if ( !(i === checkedIndex)) {
-                            $(elem).parent().css('color', 'black');
-                            $(this).attr('disabled', false);
-                        }
+        // Checks if the unchecked checkbox is not the first one and the time starts at 9am
+        if ($(this).index(':checkbox') !== 0 || (/9(am|pm)/g).test($(this).attr('data-day-and-time'))  )   {
+            // Checks if each checkbox's time starts at 9am 
+            $("label input").each(function(i, elem) { 
+                const checkEach = $(this).attr('data-day-and-time');
+                if ( (checkFirst === (/9(am|pm)/g).test(checkEach)) ) {
+                    // Checks if the checked checkbox index in not the same as the other ones.
+                    if ( !(i === checkedIndex)) {
+                        // Converts it back to the original
+                        $(elem).parent().css('color', 'black');
+                        $(this).attr('disabled', false);
                     }
+                }
 
-                });
-            } 
-
-            // else if ((/9(am|pm)/g).test($(this).attr('data-day-and-time')) ) {
-            //     $("label input").each(function(i, elem) {
-            //         const checkEach = $(this).attr('data-day-and-time');
-            //         if ( (checkFirst === (/9(am|pm)/g).test(checkEach)) )  {
-            //             // || checkSecond === (/1(pm)/g).test(checkEach)) && checkEach !== undefined
-            //             // console.log($(this).parent().text(), ' ', i );
-            //             if ( !(i === checkedIndex)){
-            //                 $(this).attr('disabled', false);
-            //                 $(elem).parent().css('color', 'black');
-            //             } 
-            //         }
-            //     });
-                // $("label input").each(function(i, elem) { 
-                //     if ( i===checkedIndex ) {
-                //         $(elem).parent().css('color', 'black');
-                //         $(this).attr('disabled', false);
-                //     }
-                // });
-               
-            // } 
-            // else if ((/1(pm)/g).test($(this).attr('data-day-and-time')) ) {
-            //     $("label input").each(function(i, elem) { 
-            //         $(elem).parent().css('color', 'black');
-            //         $(this).attr('disabled', false);
-            //     });
-            // } 
-            
+            });
+        }            
     }
 });
 
-// ================== Payment Info" section
+// -------------------"Payment Info" section-------------------------
+// Credit card option from dropdown menu is selected
 $('#payment option:selected').attr('disabled','disabled');
 $('#payment')[0].selectedIndex = $('#payment option[value = "credit card"]').index();
+
+// Displays credit card payment option only and hides other
 $('.credit-card').css('display', 'block');
 $('div:last-child()',  $('fieldset').last()).prev().css('display', 'none');
 $('div:last-child()',  $('fieldset').last()).css('display', 'none');
+
+// Changes the payment options as selected from the dropdown menu
 $('#payment').on('change', function(e) {
     // Code taken from: https://stackoverflow.com/questions/36476703/jquery-click-select-option-value-with-option-text
     let method = $('option:selected', this).text();
@@ -182,46 +157,45 @@ $('#payment').on('change', function(e) {
         $('.credit-card').css('display', 'none');
         $('div:last-child()',  $('fieldset').last()).css('display', 'none');
     } 
-    // console.log( $('div:last-child() p',  $('fieldset').last() ));
 });
 
-// ============================Form Validation========================
-
-$('#name').prop('required', true)
-$('#mail').prop('required', true)
+// ----------------------Form validation-------------------------
+// Checks how many times was checkbox clicked
 let check = 0; 
 $( "input[type=checkbox]" ).on( "click", function() {
     check++;
 });
- // if (/\w\S.[@]\D\S[a-z][.][A-za-z]/)
+
 $('button[type="submit"]').on('click', function(e) {
     e.preventDefault();
+    // Checks if name input field has no input and makes a red border when form submitted
     if ($('#name').val() == '') {
         $('#name').css("border","3px solid red");
     }
-
-    // if (RegExp.test ( $('#mail').val()) || $('#mail').val() == '' ) {
-    //     $('#mail').css("border","3px solid red");
-
-    // }   
-    
+    // Checks if email has the right format and it has no input; makes red border when form is submitted
+    if ( !(/[^@]+@[^@.]+\.[a-z]+$/i.test( $('#mail').val())) || $('#mail').val() == '' ) {
+        $('#mail').css("border","3px solid red");
+    }   
+    // Checks if there are no checked activities, then makes red border when form is submitted
     if (check == 0) {
         $('.activities legend').css("color","red");
     }
-
     
-    $('#cc-num').prop('required', true)
-    $('#zip').prop('required', true)
-    $('#ccv').prop('required', true)
-    
+    // Checks if payment option is credit card
     if ($('#payment option[value = "credit card"]').text() == 'Credit Card') {
-        if ( $('#cc-num').val() == '' || $('#zip').val() == '' || $('#ccv').val() == '' ) {
+        // Checks if input field in not empty and it contains numbers between 13 and 16
+        if ( $('#cc-num').val() == '' ||  !(/\d{13,16}/.test($('#cc-num').val())) ) {
             $('#cc-num').css("border","3px solid red");
+        } 
+        // Checks if input field in not empty and it contains 5 numbers
+        if ( $('#zip').val() == '' || !(/^\d{3}$/.test($('#zip').val()) )) {
             $('#zip').css("border","3px solid red");
+        } 
+        // Checks if input field in not empty and it contains 3 numbers
+        if ($('#cvv').val() == '' || !(/^\d{3}$/.test($('#cvv').val())) ) {
             $('#cvv').css("border","3px solid red");
-        } else if ( /\d{13,16}/.test($('#cc-num').val())  )
+        }
+
     }
-    /\d{5}/
 });
 
-// console.log($('.activities input[type="checkbox"]'));
