@@ -73,16 +73,155 @@ $('#design').on('change', function (e) {
         }
 });
 
+let total = 0;
+let price = '';
+// const div = document.createElement('div class="price"');
+// div.textContent = "Hello"
+$('.activities').append( "<div id='price'>Total: </div>");
+
+
 // --------------”Register for Activities” section
-$(':checkbox').on('change', function(e) {
-    const regex = /9(am|pm)/g;
+$(':checkbox').on('click', function(e) {
+    // const regex = /9(am|pm)/g;
+    const checkFirst = (/9(am|pm)/g).test($(this).attr('data-day-and-time'));
+    const checkSecond = (/1(pm)/g).test($(this).attr('data-day-and-time'));
+    const checkedIndex = $(this).index(':checkbox');
     if(this.checked) {
-        
-        if( regex.test($(this).attr('data-day-and-time') )) {
-            // console.log($('.activities label').text());
-            // console.log($(this).attr('data-day-and-time')); 
-            console.log('hey')
+        // console.log( $(this).parent().text());
+        // const priceText = (/[$]\d{2,}/).test($(this).parent().text());
+        price = $(this).parent().text().toString().trim();
+        price = parseInt(price.substr(-3)) ;       
+        total = total + price;
+        $('#price').text(`Total: ${total}`)
+        // console.log("Checked Total: ", total);
+        // console.log("Checked price:", price);
+
+        if (checkFirst !== false || checkSecond !== false) {
+            $("label input").each(function(i, elem) {
+                const checkEach = $(this).attr('data-day-and-time');
+                if ( (checkFirst === (/9(am|pm)/g).test(checkEach) || checkSecond === (/1(pm)/g).test(checkEach)) && checkEach !== undefined) {
+                    // console.log($(this).parent().text(), ' ', i );
+                    if ( !(i === checkedIndex)){
+                        $(this).attr('disabled', 'disabled');
+                        $(elem).parent().css('color', 'grey');
+                    } 
+                }
+            });
         }
+        
+    } else {
+        const newPrice = parseInt($(this).parent().text().toString().trim().substr(-3));
+        // console.log("Unchecked price:", newPrice);
+        total -= newPrice;
+        $('#price').text(`Total: ${total}`)
+        // console.log('Unchecked Total----', total);
+        
+        // if ( !(/9(am|pm)/g).test($(this).parent().text()) || !(/1(pm)/g).test($(this).parent().text() == true) ) {
+            if ($(this).index(':checkbox') !== 0 || (/9(am|pm)/g).test($(this).attr('data-day-and-time'))  )   {
+                $("label input").each(function(i, elem) { 
+                    const checkEach = $(this).attr('data-day-and-time');
+                    if ( (checkFirst === (/9(am|pm)/g).test(checkEach)) ) {
+                        if ( !(i === checkedIndex)) {
+                            $(elem).parent().css('color', 'black');
+                            $(this).attr('disabled', false);
+                        }
+                    }
+
+                });
+            } 
+
+            // else if ((/9(am|pm)/g).test($(this).attr('data-day-and-time')) ) {
+            //     $("label input").each(function(i, elem) {
+            //         const checkEach = $(this).attr('data-day-and-time');
+            //         if ( (checkFirst === (/9(am|pm)/g).test(checkEach)) )  {
+            //             // || checkSecond === (/1(pm)/g).test(checkEach)) && checkEach !== undefined
+            //             // console.log($(this).parent().text(), ' ', i );
+            //             if ( !(i === checkedIndex)){
+            //                 $(this).attr('disabled', false);
+            //                 $(elem).parent().css('color', 'black');
+            //             } 
+            //         }
+            //     });
+                // $("label input").each(function(i, elem) { 
+                //     if ( i===checkedIndex ) {
+                //         $(elem).parent().css('color', 'black');
+                //         $(this).attr('disabled', false);
+                //     }
+                // });
+               
+            // } 
+            // else if ((/1(pm)/g).test($(this).attr('data-day-and-time')) ) {
+            //     $("label input").each(function(i, elem) { 
+            //         $(elem).parent().css('color', 'black');
+            //         $(this).attr('disabled', false);
+            //     });
+            // } 
+            
     }
 });
 
+// ================== Payment Info" section
+$('#payment option:selected').attr('disabled','disabled');
+$('#payment')[0].selectedIndex = $('#payment option[value = "credit card"]').index();
+$('.credit-card').css('display', 'block');
+$('div:last-child()',  $('fieldset').last()).prev().css('display', 'none');
+$('div:last-child()',  $('fieldset').last()).css('display', 'none');
+$('#payment').on('change', function(e) {
+    // Code taken from: https://stackoverflow.com/questions/36476703/jquery-click-select-option-value-with-option-text
+    let method = $('option:selected', this).text();
+    if ( method == 'Credit Card') {
+        $('.credit-card').css('display', 'block');
+        $('div:last-child()',  $('fieldset').last()).prev().css('display', 'none');
+        $('div:last-child()',  $('fieldset').last()).css('display', 'none');
+    } else if (method == 'PayPal') {
+        $('div:last-child()',  $('fieldset').last()).prev().css('display', 'block');
+        $('.credit-card').css('display', 'none');
+        $('div:last-child()',  $('fieldset').last()).css('display', 'none');
+    } else if (method == 'Bitcoin') {
+        $('div:last-child()',  $('fieldset').last()).css('display', 'block');
+        $('.credit-card').css('display', 'none');
+        $('div:last-child()',  $('fieldset').last()).css('display', 'none');
+    } 
+    // console.log( $('div:last-child() p',  $('fieldset').last() ));
+});
+
+// ============================Form Validation========================
+
+$('#name').prop('required', true)
+$('#mail').prop('required', true)
+let check = 0; 
+$( "input[type=checkbox]" ).on( "click", function() {
+    check++;
+});
+ // if (/\w\S.[@]\D\S[a-z][.][A-za-z]/)
+$('button[type="submit"]').on('click', function(e) {
+    e.preventDefault();
+    if ($('#name').val() == '') {
+        $('#name').css("border","3px solid red");
+    }
+
+    // if (RegExp.test ( $('#mail').val()) || $('#mail').val() == '' ) {
+    //     $('#mail').css("border","3px solid red");
+
+    // }   
+    
+    if (check == 0) {
+        $('.activities legend').css("color","red");
+    }
+
+    
+    $('#cc-num').prop('required', true)
+    $('#zip').prop('required', true)
+    $('#ccv').prop('required', true)
+    
+    if ($('#payment option[value = "credit card"]').text() == 'Credit Card') {
+        if ( $('#cc-num').val() == '' || $('#zip').val() == '' || $('#ccv').val() == '' ) {
+            $('#cc-num').css("border","3px solid red");
+            $('#zip').css("border","3px solid red");
+            $('#cvv').css("border","3px solid red");
+        } else if ( /\d{13,16}/.test($('#cc-num').val())  )
+    }
+    /\d{5}/
+});
+
+// console.log($('.activities input[type="checkbox"]'));
