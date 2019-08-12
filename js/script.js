@@ -72,45 +72,54 @@ $('#design').on('change', function (e) {
 });
 
 // --------------”Register for Activities” section-------------------
+
+$('.activities').append( "<div id='price'>Total: </div>");
 let total = 0;
 let price = '';
-$('.activities').append( "<div id='price'>Total: </div>");
-
+let newPrice = 0;
 // Checks which checkbox is clicked and disables the events that are at the same time.
 $(':checkbox').on('click', function(e) {
     // Select the events that start at the same time.
-    const checkFirst = (/9(am|pm)/g).test($(this).attr('data-day-and-time'));
-    const checkSecond = (/1(pm)/g).test($(this).attr('data-day-and-time'));
+    const checkFirst = (/^Tuesday\s9(am|pm)-12(am|pm)/).test($(this).attr('data-day-and-time'));
+    const checkSecond = (/^Tuesday\s1(am|pm)-4(am|pm)/).test($(this).attr('data-day-and-time'));
     const checkedIndex = $(this).index(':checkbox');
-   
+    
     if(this.checked) {
         // Gets the price and adds to the total variable
         price = $(this).parent().text().toString().trim();
         price = parseInt(price.substr(-3)) ;       
         total = total + price;
         $('#price').text(`Total: ${total}`)
-
+// console.log(checkFirst, " ", checkSecond, " ", checkedIndex);
         // Disables the options that start at 9am other than the one checked.
         if (checkFirst !== false || checkSecond !== false) {
             $("label input").each(function(i, elem) {
+                
                 const checkEach = $(this).attr('data-day-and-time');
-                if ( (checkFirst === (/9(am|pm)/g).test(checkEach) || checkSecond === (/1(pm)/g).test(checkEach)) && checkEach !== undefined) {
+                
+                if ( ( !(/Wednesday\s1pm\-4pm/).test(checkEach) && !(/Wednesday\s9am\-12pm/).test(checkEach) && !(/Tuesday\s1pm\-4pm/).test(checkEach) && (/Tuesday\s9am\-12pm/).test(checkEach)) 
+                    || ( !(/Wednesday\s9am\-12pm/).test(checkEach) && (/Tuesday\s1pm\-4pm/).test(checkEach)) 
+                    ) {   
+                    // console.log(checkEach);
+                 
                     // Checks if the other options are not the one that is checked.
                     if ( !(i === checkedIndex)){
                         $(this).attr('disabled', 'disabled');
-                        $(elem).parent().css('color', 'grey');
+                        $(this).parent().css('color', 'grey');
                     } 
-                }
+                } 
             });
         }
+
+        $('#price').text(`Total: ${total}`)
+
     // If the checkbox is unchecked, the disabled options are converted back to original options
     } else {
         // Price is subtracted to get the new total 
-        const newPrice = parseInt($(this).parent().text().toString().trim().substr(-3));
+        newPrice = parseInt($(this).parent().text().toString().trim().substr(-3));
         total -= newPrice;
         $('#price').text(`Total: ${total}`)
         
-        // if ( !(/9(am|pm)/g).test($(this).parent().text()) || !(/1(pm)/g).test($(this).parent().text() == true) ) {
         // Checks if the unchecked checkbox is not the first one and the time starts at 9am
         if ($(this).index(':checkbox') !== 0 || (/9(am|pm)/g).test($(this).attr('data-day-and-time'))  )   {
             // Checks if each checkbox's time starts at 9am 
@@ -122,6 +131,7 @@ $(':checkbox').on('click', function(e) {
                         // Converts it back to the original
                         $(elem).parent().css('color', 'black');
                         $(this).attr('disabled', false);
+                        // $(this).prop("checked", true);
                     }
                 }
 
@@ -143,19 +153,21 @@ $('div:last-child()',  $('fieldset').last()).css('display', 'none');
 // Changes the payment options as selected from the dropdown menu
 $('#payment').on('change', function(e) {
     // Code taken from: https://stackoverflow.com/questions/36476703/jquery-click-select-option-value-with-option-text
-    let method = $('option:selected', this).text();
+   let method = $('option:selected', this).text();
     if ( method == 'Credit Card') {
         $('.credit-card').css('display', 'block');
         $('div:last-child()',  $('fieldset').last()).prev().css('display', 'none');
         $('div:last-child()',  $('fieldset').last()).css('display', 'none');
-    } else if (method == 'PayPal') {
+    } 
+    if (method == 'PayPal') {
         $('div:last-child()',  $('fieldset').last()).prev().css('display', 'block');
         $('.credit-card').css('display', 'none');
         $('div:last-child()',  $('fieldset').last()).css('display', 'none');
-    } else if (method == 'Bitcoin') {
+    }
+    if (method == 'Bitcoin') {
         $('div:last-child()',  $('fieldset').last()).css('display', 'block');
         $('.credit-card').css('display', 'none');
-        $('div:last-child()',  $('fieldset').last()).css('display', 'none');
+        $('div:last-child()',  $('fieldset').last()).prev().css('display', 'none');
     } 
 });
 
@@ -166,36 +178,43 @@ $( "input[type=checkbox]" ).on( "click", function() {
     check++;
 });
 
-$('button[type="submit"]').on('click', function(e) {
-    e.preventDefault();
+$('form').on('submit', function(e) {
+    let method = $('option:selected', "#payment").text();
+
+    console.log(method)
     // Checks if name input field has no input and makes a red border when form submitted
     if ($('#name').val() == '') {
         $('#name').css("border","3px solid red");
+        e.preventDefault();
     }
     // Checks if email has the right format and it has no input; makes red border when form is submitted
     if ( !(/[^@]+@[^@.]+\.[a-z]+$/i.test( $('#mail').val())) || $('#mail').val() == '' ) {
         $('#mail').css("border","3px solid red");
+        e.preventDefault();
     }   
     // Checks if there are no checked activities, then makes red border when form is submitted
     if (check == 0) {
         $('.activities legend').css("color","red");
+        e.preventDefault();
     }
-    
     // Checks if payment option is credit card
-    if ($('#payment option[value = "credit card"]').text() == 'Credit Card') {
+    if ($('#payment option[value = "credit card"]').text() == method) {
         // Checks if input field in not empty and it contains numbers between 13 and 16
-        if ( $('#cc-num').val() == '' ||  !(/\d{13,16}/.test($('#cc-num').val())) ) {
+        if ( $('#cc-num').val() == '' ||  !(/[^A-Za-z\s]\d{13,16}$/.test($('#cc-num').val())) ) {
+            // e.preventDefault();
             $('#cc-num').css("border","3px solid red");
+            e.preventDefault();
         } 
         // Checks if input field in not empty and it contains 5 numbers
-        if ( $('#zip').val() == '' || !(/^\d{3}$/.test($('#zip').val()) )) {
+        if ( $('#zip').val() == '' || !(/^\d{5}$/.test($('#zip').val()) )) {
             $('#zip').css("border","3px solid red");
+            e.preventDefault();
         } 
         // Checks if input field in not empty and it contains 3 numbers
         if ($('#cvv').val() == '' || !(/^\d{3}$/.test($('#cvv').val())) ) {
             $('#cvv').css("border","3px solid red");
+            e.preventDefault();
         }
-
     }
 });
 
