@@ -3,6 +3,8 @@ $(document).ready(function() {
     $("#name").focus();
 });
 
+// ----------------------------- *** I am aiming for Meets Expectations *** -----------------------
+
 // ----------Job Role-----------------
 // Creates text field
 const inputArea = document.createElement("input");
@@ -66,7 +68,7 @@ $('#design').on('change', function (e) {
     }   
     else {
         $('#color')[0].selectedIndex = 0;
-        $("#color option").css('display', 'block')
+        $("#color option").css('display', 'none');
     }
         
 });
@@ -82,10 +84,9 @@ $(':checkbox').on('click', function(e) {
     // Select the events that start at the same time.
     const checkedInput = $(this).attr('data-day-and-time'); 
     const checkedIndex = $(this).index(':checkbox');
-
-    // Gets the price and adds to the total variable
         
     if ($(this).is(':checked')) {
+        // Gets the price and adds to the total variable
         price = $(this).parent().text().toString().trim();
         price = parseInt(price.substr(-3)) ;       
         total = total + price;
@@ -93,9 +94,8 @@ $(':checkbox').on('click', function(e) {
 
         $("label input").each(function(i, elem) {
             const checkEach = $(elem).attr('data-day-and-time');
-            // if ($(':checkbox').is(':checked')) {
             if (checkedInput == checkEach) {
-                // Checks if the other options are not the one that is checked.
+                // Checks if the other options are not the one that is checked and turns them grey.
                 if ( !(i === checkedIndex)){
                     $(elem).attr('disabled', 'disabled');
                     $(elem).parent().css('color', 'grey');
@@ -103,17 +103,16 @@ $(':checkbox').on('click', function(e) {
             }
         });
     } else {
-        // Price is subtracted to get the new total 
+        // When unchecked price is subtracted to get the new total 
         newPrice = parseInt($(this).parent().text().toString().trim().substr(-3));
         total -= newPrice;
         $('#price').text(`Total: ${total}`);
     }
     
+    // When unchecked, the options that were disabled are now back to normal
     if ($(this).is(":not(:checked)")) {      
-        console.log('hello')      
         $("label input").each(function(i, elem) {
             const checkEach = $(elem).attr('data-day-and-time');
-            // if ($(':checkbox').is(':checked')) {
             if (checkedInput == checkEach) {
                 // Checks if the other options are not the one that is checked.
                 if ( !(i === checkedIndex)){
@@ -173,7 +172,6 @@ $('form').on('submit', function(e) {
     }
     // Checks if email has the right format and it has no input; makes red border and prevents form submission
     if ( !(/[^@]+@[^@.]+\.[a-z]+$/i.test( $('#mail').val())) || $('#mail').val() == '' ) {
-        console.log($('#mail').val())
         $('#mail').css("border","3px solid red");
         e.preventDefault();
     }   
