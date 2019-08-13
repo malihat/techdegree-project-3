@@ -1,9 +1,9 @@
+//        ----------------------------- *** I am aiming for Meets Expectations *** -----------------------
+
 // When page loads, the 'name' input field is focused.
 $(document).ready(function() {
     $("#name").focus();
 });
-
-// ----------------------------- *** I am aiming for Meets Expectations *** -----------------------
 
 // ----------Job Role-----------------
 // Creates text field
