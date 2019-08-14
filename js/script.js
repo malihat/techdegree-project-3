@@ -183,9 +183,9 @@ $('form').on('submit', function(e) {
     // Checks if payment option is credit card and prevents form submission if value is incorrect
     if ($('#payment option[value = "credit card"]').text() == method) {
         // Checks if input field in not empty and it contains numbers between 13 and 16
-        if ( $('#cc-num').val() == '' ||  !(/[^A-Za-z\s]\d{13,16}$/.test($('#cc-num').val())) ) {
+        if ( $('#cc-num').val() == '' ||  !(/^\d{13,16}$/.test($('#cc-num').val())) ) {
             $('#cc-num').css("border","3px solid red");
-            e.preventDefault();
+            e.preventDefault(); 
         } 
         // Checks if input field in not empty and it contains 5 numbers
         if ( $('#zip').val() == '' || !(/^\d{5}$/.test($('#zip').val()) )) {
